@@ -1,5 +1,6 @@
 ---
 title: "Global Query Filters for Interfaces"
+date: 2019-07-29T01:34:00+00:00
 description: "This post describes how to apply an Entity Framework Core Global Query filter on all entity types that implement an interface using a strongly typed expression."
 tags: [data, ef]
 excerpt_image: https://user-images.githubusercontent.com/19977/61970776-55bc4a80-af92-11e9-9894-a772c6162adf.jpg

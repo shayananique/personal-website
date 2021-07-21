@@ -1,5 +1,6 @@
 ---
 title: "HTTPS with LetsEncrypt for Azure Functions"
+date: 2021-04-14T01:34:00+00:00
 description: "Setting up HTTPS with a proper certificate for Azure Functions should be straightforward and easy, but it's not. In this post I walk through one aspect of it that tripped me up."
 tags: [azure,security]
 ---
