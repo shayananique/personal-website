@@ -1,32 +1,42 @@
-baseurl: 'https://shayananique.com/'
+baseUrl: https://shayananique.com
 languageCode: en-us
-paginate: 10
+theme: terminal
+paginate: 5
 
 params:
-  contentTypeName: post
+  # dir name of your blog content (default is `content/posts`)
+  contentTypeName: posts
+  # ["orange", "blue", "red", "green", "pink"]
   themeColor: blue
-  showMenuItems: 2
+  # if you set this to 0, only submenu trigger will be visible
+  showMenuItems: 3
+  # show selector to switch language
+  showLanguageSelector: false
+  # set theme to full screen width
   fullWidthTheme: false
+  # center theme with default width
   centerTheme: true
 
 languages:
   en:
+    languageName: English
     title: Shayan Anique
-    subtitle: 'Technolology, Software, Management, and Open Source.'
+    subtitle: Technology, Software, Management, and Open Source.
     keywords: ''
-    copyright: ''
     menuMore: Show more
     readMore: Read more
     readOtherPosts: Read other posts
+
     params:
       logo:
         logoText: Shayan Anique
         logoHomeLink: /
+
     menu:
       main:
-        - identifier: about
-          name: About
-          url: /about
-        - identifier: showcase
-          name: Showcase
-          url: /showcase
+      - identifier: about
+        name: About
+        url: /about
+      - identifier: showcase
+        name: Showcase
+        url: /showcase
