@@ -1,6 +1,5 @@
 baseUrl: https://shayananique.com
 languageCode: en-us
-theme: terminal
 paginate: 5
 
 params:
