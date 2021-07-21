@@ -1,0 +1,9 @@
+{
+  "name": "personal-website",
+  "version": "2.0.0",
+  "description": "Technology, Software, Management, and Open Source.",
+  "main": "index.js",
+  "repository": "https://github.com/shayananique/personal-website.git",
+  "author": "Shayan Anique <shayan@shayananique.com>",
+  "license": "ISC"
+}
