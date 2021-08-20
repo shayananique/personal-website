@@ -6,7 +6,7 @@ I hereby claim:
 
   * I am an admin of https://shayananique.com
   * I am shayananique (https://keybase.io/shayananique) on keybase.
-  * I have a public key with fingerprint 5B73 25CD 75DE 0DB5 B011  2F06 DB87 7A21 E1DF 6F70
+  * I have a public key with fingerprint D792 FED2 0A32 CBFC 147E  8C1E 499E 365C E44A 2086
 
 To do so, I am signing this object:
 
@@ -14,21 +14,21 @@ To do so, I am signing this object:
   "body": {
     "key": {
       "eldest_kid": "01018eaf0be40cafd1366aee21245b315347664379e3f096a23da67b8886d427f2fa0a",
-      "fingerprint": "5b7325cd75de0db5b0112f06db877a21e1df6f70",
+      "fingerprint": "d792fed20a32cbfc147e8c1e499e365ce44a2086",
       "host": "keybase.io",
-      "key_id": "db877a21e1df6f70",
-      "kid": "01018eaf0be40cafd1366aee21245b315347664379e3f096a23da67b8886d427f2fa0a",
+      "key_id": "499e365ce44a2086",
+      "kid": "010144344a3a889fa661c08593f30d01dfa021d4c34039fce7741c375b28da26f5d10a",
       "uid": "874d22c2c955b55ad8fe9b4685ab7919",
       "username": "shayananique"
     },
     "merkle_root": {
-      "ctime": 1623170245,
-      "hash_meta": "1d8f0f1a03b4df89757558c957b6b1ecc073faf14ed30710378363496758bff5",
-      "seqno": 20140759
+      "ctime": 1629489824,
+      "hash_meta": "665aad58dfe8a4fb259edb4f34a7856c59745b4ba28ff1b3025d7eb64e3bbff5",
+      "seqno": 20605258
     },
     "revoke": {
       "sig_ids": [
-        "a4196da60378851324cf90f77928a53437e8807ebf71319f16d085353b7293510f"
+        "35f0d2514a4f3e7779ea86726ec735f4cea9657d1c7f728e1729d1786ffb8f500f"
       ]
     },
     "service": {
@@ -38,10 +38,10 @@ To do so, I am signing this object:
     "type": "web_service_binding",
     "version": 1
   },
-  "ctime": 1623170266,
+  "ctime": 1629489847,
   "expire_in": 157680000,
-  "prev": "dc2963fa45b924372078ca9699f047d6e9010a1a1c799930cd4a63973de59e49",
-  "seqno": 111,
+  "prev": "b07b4803fff7ea0b6767a54b2f6fe159a1cf56a22786df5b87edc2420994d9d8",
+  "seqno": 159,
   "tag": "signature"
 }
 
@@ -51,32 +51,33 @@ which yields the signature:
 Version: Keybase OpenPGP v2.1.13
 Comment: https://keybase.io/crypto
 
-yMPdAnicrVNrbBVFFL4tYKWFFgISsUVyl/DQNDCzj5mdKyhoAG21PORhqXCZ3Z1t
-l/beva8W2gstIEKBiIKEVKDStFACIoSXCAmhQAkq1UIQaLC1PKzVtigSglBezjYa
-E8NP589kZr7zne9850xt726u+Jhlx0esf9qXWhNz5sTifNfcY5svRwXNNgoFT1TI
-ZV0byzNYOOLNtQzBIwAIoMqoCTQmA52aBpQQooyJUJQVTYKKJGOEZAkTJpmAICpK
-BkVYU1UVGbKITdGkgAqpgmn5s1koELL8EU6raFgSFd3AisGAoSkagFA0ATI0FWMq
-QgYNE5kY8MAcO+xEcHEaDbORls3v+MHbJe8J+P9Zd34XnYplQxR1USeKoikKNVST
-EU1GqkI1TCBxgGEW8lMf4+hwDi2kfuq3gvlMWJQq+FgoN495Q7YdcQzWI5YDg0iU
-IAZcDy+ShnO8PhahPBpycmBCCiRNNkyVYAUrisozYw1pkOk6wJJJTSgzQwIYAgmr
-EpJkgrCiaqapcC1hFvTbgkcEUAZYIVxCiBXYuczJHrayuXdhwZMlUBkSxMt2KFQF
-SqKsmwSYGBNRpdwhCTNVBZhpJoYSJCZEBlAVSZE0LBJJgcAUZi9ysoUKLL2L3GnW
-E0wYqds+LisQsiO2bufx15xIJBD2OOZECgMOfD7TvH8TeTXLb/Bx4REFLBS2bD83
-iyP/4xtCqQJbELBCzGs5CAUjFfDl5GEFznDoIkHcKt5wIvJiRIBVnRJEiAlkbCBG
-+JRQSKGOCSES0A2ZIolgyWAKYTL510gIIRdKs52yrGw/jeSHeGNPHH+3uysm3vVU
-j1jnI7nie/b553ulb0l6PG11TV5cU+9Ds+56VjZvHO2Zd1/+9EYwfvBHLz/+dlJc
-Ys3izvfqlyypj+2fcGDe2tNJrmjlqf2HyrYsT6vwjetfUjUgacr1jOpZ4z1Th2zd
-2X3Di9deW9fSw13y+/CDAz8PZg8ojrZO3N6SMv3ix3t/PFh6qe/jihYZpT2b0rSs
-teLWniNS1ktH3++27erPl2OKjbKi6o19nlv9UF6xaqvmyr/XdjN668MZTSVjO7L6
-Ni5/odV7rflUbP2om2ibUN4Pzunsh+prR0QSTjYfoQeG7dj+1tyExqmlEy8Nr04d
-7C6+3/qTR2tu+CKrb1mf16d07Op1L2ZhXsOmNyedmzm9xr07uVfm4QF3ip6ZGtjd
-frchZf3tzuRVJ5K2lL5SWdnRmH774sMxteXt50OPOovSM6//kZfakThj3eG9yUuT
-q4KuzIy4zWlD246e2ac3/LnaL88YV1863zdmdtW+NWPHtwyLLiyofmfYd0v2Pe+u
-Gh7JOv3D8dxB9YMqV6YPDawLdDxCMd9/du5B7c7J03qfL2gSlrp/lctWvPHJwyHu
-wguxuxbEmqv2uzLad4xgp14tz9dThm4K7rlxzW6f3I4Gmxd6Diz5xghF6zKP9XCv
-bIvb/IFv7W9vo4zG8lHbzhZpnXdO1m0qZlu7JV5ZMHrCnKRgS1phRdrthLo9M7+q
-W//LyQ33r65p2z7m6y+NabMeJPrOemOvBE//BQLRBfQ=
-=sEzt
+yMQBAnicbVN9TJVVGL8g+YGR4phpqehbmqXT9z3v+XqvOEuzWaLipoKRXc9533Pg
+CtwX7r2QZIhBYtYUMBalBrPNpX1oqWCJKCBOEMUvLD9yms1hS5tlrjW/OpfV3Jrn
+n7PznN/ze37P7zmnNa6XJzZqcuPJvo/y7w9HdbSsyPewkbG7l2ncdQo17zItS/Rs
+ItsRobAvy+9oXk03dIMKJnUuoG4z6RgmxkwIYACIuGkgExKMoUksYUrdwgyYDsOE
+U0qxAwGRQDKdaeM16Q9kiGBu0B8IK1qHWEAKB+jMBDaXtgGJoLYhoKV4MLIFhAzo
+FKvETDcUyVDiOAuJCX5XxdTB1yPvIfgHuiE0VdhklFqSYWzYOkWWKU3d0Q1HyQKG
+A20T6qYlbUEINGyTIA6owwCWyDF6dOf30FECHQBsYFsIcYSYQ6WwOMQUMU4sw4oA
+QyIYYDlCoUOZrJAFWMCfly+0ovFajghmZQtf0HXDEYPtsD8CMzCwILUogKpJFsr0
+5YgwU9kYI8YcRB0pKIOSA2QJh0NpQkYowjayiLIecgaolAY3dYAcIjiGwuRcSqS0
+hERewNW8QMc6AogqCUFR4GaJSPWQP0N5F9K86ZqJpO4AZEBVxlQOqCEyignAwibq
+DtqCWRgRx7CJJIAKgwDLMQjFUnIqka5LbVFRpFqwwG/3kEeG9RATJthujpKVG3TD
+ru1mq9vMcDg35I2YEy7MjcDfENz3L5GP+wOOei4qo0AEQ343oMxSyP/5Bsl4TSzN
+9QeFzx9BIIKprlakjihQlFwnHFLdlFISwXSOCSYMQQ4klsJAFjNsidSLBaojRyJO
+iXBsAIFuWdCxHPrASAVWQllGpC1/RoCF84NqsC3Nr8V4omI9vR+JjnwkT2y/gf99
+r0FgoKd0zTpMqivXV94fkHXsVp2c+f7tyX+dNkW902fX49UNt9d1t+qHvbeqlk/r
+OLK+dv7TuzbUHd/bklYbv+lz0pY4YdUT0dv6orcmLbLOtu448XZKzfXTX5ROGe3Z
+3flMyzsb7x4aeqF0S3LjnMq2ZPfUzn4JxQuHxaU3XUXdC+fOqkg7nzq9u/X4zCWb
+O0ddJItj1ozcX2FmThz94bzuyux7n058qrRmxC9V2Tgua5zc9+tBkAGGVsUvz7Ka
+Lyzynvkteb57YPaALedSkqo3xb7yZ/mgPbdjaGv+1BlLmxJ2t1/c/vXauoMvNBwa
+1afjxT1H9m+8mV7298k90YNfTd3w042VtdPOLS5ZPWl9RXXAe+XZyzVbE6a3f0c+
+W/nRvP5DNzYnlswqXruh/UR5rdl+b5IsQL3rL3eP6tLdQVMQ9xUata+PwY1ln8y5
+f6YoNLfh5QW+1QtmJ+y7GdfonTEkPSV1cPml0xeKL35cfyml97V2j3XqZG1Xxeo7
+f3T3yR/Gi/v239uvOKaqqeRsyTaR+GR6V9JzV2rO1t252evn0sup9Xsbdug3Am/6
+rr477nyLNvWr63ejNscnr3p+4I+/Z/RPas8rr/9geNe3Q+qLlsWva7h2PfxeeuKK
+IwuPNkdvf2zn2JQDHUfNA00jeqW9lDZmqzvPk/dNW6eWNGR0ePqhc2yt4Y4dLkpm
+tHa2pcRu/+FY85dLyrb+A428A8c=
+=w18R
 -----END PGP MESSAGE-----
 
 And finally, I am proving ownership of this host by posting or
