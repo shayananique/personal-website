@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>security on Shayan Anique</title><link>https://shayananique.com/tags/security/</link><description>Recent content in security on Shayan Anique</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 14 Apr 2021 01:34:00 +0000</lastBuildDate><atom:link href="https://shayananique.com/tags/security/index.xml" rel="self" type="application/rss+xml"/><item><title>HTTPS with LetsEncrypt for Azure Functions</title><link>https://shayananique.com/posts/2021-04-14-https-for-azure-functions/</link><pubDate>Wed, 14 Apr 2021 01:34:00 +0000</pubDate><guid>https://shayananique.com/posts/2021-04-14-https-for-azure-functions/</guid><description>UPDATE: there might be an easier way now. App Service Managed Certificates now supports apex domains. I&amp;rsquo;ll give it a try and report back.
+My friends, in an ideal world, it would be dead simple to set up a certificate for an Azure App Service. For example, GitHub Pages gets this right.
+Look at that. A thing of beauty. Just click that checkbox and now your site is being served from HTTPS using a free certificate from LetsEncrypt.</description><content>&lt;p>&lt;em>UPDATE: there might be an easier way now. &lt;a href="https://azure.microsoft.com/en-us/updates/public-preview-app-service-managed-certificates-now-supports-apex-domains/">App Service Managed Certificates now supports apex domains&lt;/a>. I&amp;rsquo;ll give it a try and report back.&lt;/em>&lt;/p>
+&lt;p>My friends, in an ideal world, it would be dead simple to set up a certificate for an Azure App Service. For example, GitHub Pages gets this right.&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/shayananique/shayananique.com/main/assets/images/git_https_customdomain.png" alt="Screen shot showing a checkbox for enforcing HTTPS" title="Could it be any easier?">&lt;/p>
+&lt;p>Look at that. A thing of beauty. Just click that checkbox and now your site is being served from HTTPS using a free certificate from LetsEncrypt. From an &lt;em>apex domain&lt;/em> no less!&lt;/p>
+&lt;p>But to set up a custom apex domain with HTTPS for an Azure App Service is not so easy. It takes about a hundred steps. That&amp;rsquo;s not that much of an exaggeration.&lt;/p>
+&lt;p>For my site, I use the wonderful &lt;a href="https://github.com/ohadschn/letsencrypt-webapp-renewer">ohadschn/letsencrypt-webapp-renewer&lt;/a> tool. Like I said, it takes some time to set up manually, but once you do, it works great.&lt;/p>
+&lt;p>This post is not going to walk through that part. For that, I followed &lt;a href="https://weblogs.asp.net/dixin/end-to-end-setup-free-ssl-certificate-to-secure-azure-web-app-with-https">this excellent guide by Dixin&lt;/a>. But be aware, the only constant is change and the Azure Portal embraces that credo. It&amp;rsquo;s changed a lot since this guide was written, so the screenshots may not match exactly what you need to do today, but you should be able to figure it out. Even if you follow the guide, it may be worth reading the README in the original repository.&lt;/p>
+&lt;h2 id="azure-functions">Azure Functions&lt;/h2>
+&lt;p>Now suppose you want to serve an Azure Function using HTTPS and a LetsEncrypt certificate. To clarify, I&amp;rsquo;m not talking about using an Azure Function to run &lt;code>letsencrypt-webapp-renewer&lt;/code> on a schedule. In fact, if you search Azure Functions and &lt;code>letsencrypt-webapp-renewer&lt;/code>, almost all the results are about that. No, I&amp;rsquo;m talking about being able to access your function via &lt;code>https://your-custom-domain/api/your-function&lt;/code>.&lt;/p>
+&lt;p>Since an Azure Function is an App Service under the hood, wouldn&amp;rsquo;t the instructions I mentioned earlier just work?&lt;/p>
+&lt;p>You wish. No, Azure Functions are &lt;em>SPECIAL!&lt;/em>&lt;/p>
+&lt;p>See, the problem is that LetsEncrypt needs to be able to verify that the domain is under your control. So it&amp;rsquo;s going to make a &lt;code>GET&lt;/code> request to &lt;code>http://your-custom-domain/.well-known/acme-challenge/{some-code}&lt;/code> and expect a certain response. By default, all requests to Azure Functions have the &lt;code>/api&lt;/code> prefix. So we need to do a little magic to get this to work. We need to create a proxy!&lt;/p>
+&lt;p>Fortunately, there&amp;rsquo;s &lt;a href="https://github.com/sjkp/letsencrypt-siteextension/wiki/Azure-Functions-Support">a guide for that&lt;/a>. Unfortunately, it&amp;rsquo;s a bit outdated. Also, it doesn&amp;rsquo;t work if your function is controlled via source control. For example, my functions are in GitHub so the Azure Portal won&amp;rsquo;t let me create a proxy in the Azure Portal.&lt;/p>
+&lt;p>And here is where I come to save the day. This is what I did to fix the situation.&lt;/p>
+&lt;p>First, add a &lt;code>proxies.json&lt;/code> file to your function directory. This is in the same place where your &lt;code>hosts.json&lt;/code> file is located. In your project file, make sure this file is copied to the output directory. I forgot the first time I added this file and it filled me with regret as nothing worked.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-xml" data-lang="xml">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&amp;lt;None&lt;/span> &lt;span style="color:#a6e22e">Update=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;proxies.json&amp;#34;&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span>PreserveNewest&lt;span style="color:#f92672">&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&amp;lt;/None&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Your &lt;code>proxies.json&lt;/code> file should look something like this:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;$schema&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;http://json.schemastore.org/proxies&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;proxies&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;letsencrypt-proxy&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;matchCondition&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;route&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;/.well-known/acme-challenge/{*rest}&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;backendUri&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;https://%WEBSITE_HOSTNAME%/api/letsencrypt/{rest}&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This proxy will route requests to &lt;code>https://your-custom-domain/.well-known/acme-challenge/{*rest}&lt;/code> to &lt;code>https://your-custom-domain/api/letsencrypt/{rest}&lt;/code>.&lt;/p>
+&lt;p>Now, you need to add a function class to handle that request.&lt;/p>
+&lt;p>Here&amp;rsquo;s the code for mine, adapted from the guide I mentioned.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-csharp" data-lang="csharp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.IO;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Net;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Net.Http;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Text;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> System.Threading.Tasks;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> Microsoft.AspNetCore.Http;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> Microsoft.Azure.WebJobs;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> Microsoft.Azure.WebJobs.Extensions.Http;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">using&lt;/span> Microsoft.Extensions.Logging;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">namespace&lt;/span> Serious.Abbot.Functions
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">AcmeChallengeFunction&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e"> [FunctionName(&amp;#34;AcmeChallenge&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">public&lt;/span> &lt;span style="color:#66d9ef">async&lt;/span> Task&amp;lt;HttpResponseMessage&amp;gt; Run(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e"> [HttpTrigger(AuthorizationLevel.Anonymous, Route = &amp;#34;letsencrypt/{*rest}&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> HttpRequest req,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ILogger log,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">string&lt;/span> rest)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> log.LogInformation(&lt;span style="color:#e6db74">$&amp;#34;Acme challenge requested with {req.Method}.&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> content = &lt;span style="color:#66d9ef">await&lt;/span> File.ReadAllTextAsync(&lt;span style="color:#e6db74">$@&amp;#34;D:\home\site\wwwroot\.well-known\acme-challenge\{rest}&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">var&lt;/span> resp = &lt;span style="color:#66d9ef">new&lt;/span> HttpResponseMessage(HttpStatusCode.OK)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Content = &lt;span style="color:#66d9ef">new&lt;/span> StringContent(content, Encoding.UTF8, &lt;span style="color:#e6db74">&amp;#34;text/plain&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> };
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> resp;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Commit that, deploy it, and try it out! Now, hopefully the next person that runs into this will find my blog post and not the hundreds of other irrelevant posts, and know what to do.&lt;/p></content></item></channel></rss>

@@ -1,0 +1,151 @@
+<!doctype html><html lang=en><head><title>Global Query Filters for Interfaces :: Shayan Anique</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="This post describes how to apply an Entity Framework Core Global Query filter on all entity types that implement an interface using a strongly typed expression."><meta name=keywords content><meta name=robots content="noodp"><link rel=canonical href=https://shayananique.com/posts/2019-07-29-query-filter-by-interface/><link rel=stylesheet href=https://shayananique.com/assets/style.css><link rel=stylesheet href=https://shayananique.com/assets/blue.css><link rel=apple-touch-icon href=https://shayananique.com/img/apple-touch-icon-192x192.png><link rel="shortcut icon" href=https://shayananique.com/img/favicon/blue.png><meta name=twitter:card content="summary"><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="og:title" content="Global Query Filters for Interfaces"><meta property="og:description" content="This post describes how to apply an Entity Framework Core Global Query filter on all entity types that implement an interface using a strongly typed expression."><meta property="og:url" content="https://shayananique.com/posts/2019-07-29-query-filter-by-interface/"><meta property="og:site_name" content="Shayan Anique"><meta property="og:image" content="https://shayananique.com/img/favicon/blue.png"><meta property="og:image:width" content="2048"><meta property="og:image:height" content="1024"><meta property="article:published_time" content="2019-07-29 01:34:00 +0000 UTC"></head><body class=blue><div class="container center headings--one-size"><header class=header><div class=header__inner><div class=header__logo><a href=/><div class=logo>Shayan Anique</div></a></div><div class=menu-trigger>menu</div></div><nav class=menu><ul class="menu__inner menu__inner--desktop"><li><a href=/about>About</a></li><li><a href=/showcase>Showcase</a></li></ul><ul class="menu__inner menu__inner--mobile"><li><a href=/about>About</a></li><li><a href=/showcase>Showcase</a></li></ul></nav></header><div class=content><div class=post><h1 class=post-title><a href=https://shayananique.com/posts/2019-07-29-query-filter-by-interface/>Global Query Filters for Interfaces</a></h1><div class=post-meta><span class=post-date>2019-07-29</span></div><span class=post-tags>#<a href=https://shayananique.com/tags/data/>data</a>&nbsp;
+#<a href=https://shayananique.com/tags/ef/>ef</a>&nbsp;</span><div class=post-content><div><p><em>This post describes how to apply an Entity Framework Core Global Query filter on all entity types that implement an interface using a strongly typed expression. And why you might want to do that in the first place.</em></p><p>One way to implement a multi-tenant application is to use a discriminator column (aka a <code>tenant_id</code> column on every table). This is a risky proposition. Every query must remember to filter by the <code>tenant_id</code>. One missed query and you expose data from one tenant to another. That&rsquo;ll get you featured in the next <a href=https://www.troyhunt.com/>Troy Hunt</a> security fail keynote. You don&rsquo;t want that.</p><p>There are other features that can impact every query. For example, to implement soft deletes, you might have a <code>deleted</code> column on every table. Every query needs to filter on that column.</p><p>This is where the <a href=https://docs.microsoft.com/en-us/ef/core/querying/filters>Global Query Filter feature of EF Core 2.0</a> and above comes in handy. If you use NHibernate, you&rsquo;ve had this feature for a long time.</p><p><img src=https://user-images.githubusercontent.com/19977/61970776-55bc4a80-af92-11e9-9894-a772c6162adf.jpg alt="Color Filters - by Carlos Ebert - CC BY 2.0" title="Color Filters - by Carlos Ebert - CC BY 2.0"></p><p>Here&rsquo;s a quick example of a query filter in action. First, we start with the class that&rsquo;s used in every example ever, the <code>Post</code> class. Someday we&rsquo;ll be more creative and create an example other than creating a blog engine. Blog engines is so passé.</p><p>First, let&rsquo;s assume we have a <code>Post</code> entity.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Post</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>int</span> Id { <span style=color:#66d9ef>get</span>; <span style=color:#66d9ef>set</span>; }
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>string</span> Content { <span style=color:#66d9ef>get</span>; <span style=color:#66d9ef>set</span>; }
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>bool</span> IsDeleted { <span style=color:#66d9ef>get</span>; <span style=color:#66d9ef>set</span>; }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>We add a query filter to the <code>OnModelCreating</code> method of a <code>DbContext</code> derived class.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>protected</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> OnModelCreating(ModelBuilder builder)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  modelBuilder.Entity&lt;Post&gt;()
+</span></span><span style=display:flex><span>      .HasQueryFilter(p =&gt; !p.IsDeleted);
+</span></span><span style=display:flex><span>  <span style=color:#75715e>//... Probably more code</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Now every time you query for blog posts, the query only includes posts with <code>IsDeleted</code> set to <code>false</code>.</p><p>But your blog engine is the talk of the town. It needs more than just posts, it needs comments and tags. Now your set of query filters look like this.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>protected</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> OnModelCreating(ModelBuilder builder)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  modelBuilder.Entity&lt;Post&gt;()
+</span></span><span style=display:flex><span>    .HasQueryFilter(p =&gt; !p.IsDeleted);
+</span></span><span style=display:flex><span>  modelBuilder.Entity&lt;Comment&gt;()
+</span></span><span style=display:flex><span>    .HasQueryFilter(p =&gt; !p.IsDeleted);
+</span></span><span style=display:flex><span>  modelBuilder.Entity&lt;Tag&gt;()
+</span></span><span style=display:flex><span>    .HasQueryFilter(p =&gt; !p.IsDeleted);
+</span></span><span style=display:flex><span>  <span style=color:#75715e>//... Probably more code</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Yuck! That&rsquo;s starting to get repetitive. And if you add a new entity, you have to remember to add a query filter for that entity.</p><h2 id=will-interfaces-save-us>Will Interfaces Save Us?<a href=#will-interfaces-save-us class=hanchor arialabel=Anchor>&#8983;</a></h2><p>But you, you are a smart developer. You see this problem and you think, &ldquo;I know, I&rsquo;ll solve it with an interface!&rdquo;</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>ISoftDeletable</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>bool</span> IsDeleted { <span style=color:#66d9ef>get</span>; <span style=color:#66d9ef>set</span>; }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Then you&rsquo;ll make each of your entities implement this interface. And you&rsquo;ll rewrite your query filter like so.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>protected</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> OnModelCreating(ModelBuilder builder)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  modelBuilder.Entity&lt;ISoftDeletable&gt;()
+</span></span><span style=display:flex><span>    .HasQueryFilter(p =&gt; !p.IsDeleted);
+</span></span><span style=display:flex><span>    <span style=color:#75715e>//... Probably more code</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>And you&rsquo;ll be wrong! This won&rsquo;t work because EF infers the table to filter based on the type passed in. EF Core requires a query filter for each entity type. Well, it does for the average developer. But you read this blog, so you are above average and you won&rsquo;t be bound by the limits of mere mortals.</p><h2 id=filtering-by-interface>Filtering by Interface<a href=#filtering-by-interface class=hanchor arialabel=Anchor>&#8983;</a></h2><p>When you set a filter, EF looks at the expression provided and applies it to the entity. For example, in the above example, the expression is <code>p => !p.IsDeleted</code> where <code>p</code> has the type <code>ISoftDeletable</code>. All we have to do is find every type that implements <code>ISoftDeletable</code> and rewrite this expression for each type. Specifically, we need to change the parameter type of this expression for each entity type. Sounds easy right? So how do you rewrite an expression?</p><p>Fortunately I found a pretty <a href=https://stackoverflow.com/questions/38316519/replace-parameter-type-in-lambda-expression>good answer on StackOverflow on how to replace the parameter type in a lambda expression</a>. I had to make some tweaks to use it for my needs, but here&rsquo;s the code.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>using</span> System;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> System.Collections.ObjectModel;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> System.Linq;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> System.Linq.Expressions;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ExpressionExtensions</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#75715e>// Given an expression for a method that takes in a single parameter (and</span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e>// returns a bool), this method converts the parameter type of the parameter</span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e>// from TSource to TTarget.</span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> Expression&lt;Func&lt;TTarget, <span style=color:#66d9ef>bool</span>&gt;&gt; Convert&lt;TSource, TTarget&gt;(
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>this</span> Expression&lt;Func&lt;TSource, <span style=color:#66d9ef>bool</span>&gt;&gt; root)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> visitor = <span style=color:#66d9ef>new</span> ParameterTypeVisitor&lt;TSource, TTarget&gt;();
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> (Expression&lt;Func&lt;TTarget, <span style=color:#66d9ef>bool</span>&gt;&gt;)visitor.Visit(root);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ParameterTypeVisitor</span>&lt;TSource, TTarget&gt; : ExpressionVisitor
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> ReadOnlyCollection&lt;ParameterExpression&gt; <span style=color:#ae81ff>_</span>parameters;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>protected</span> <span style=color:#66d9ef>override</span> Expression VisitParameter(ParameterExpression node)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>_</span>parameters?.FirstOrDefault(p =&gt; p.Name == node.Name)
+</span></span><span style=display:flex><span>        ?? (node.Type == <span style=color:#66d9ef>typeof</span>(TSource) ? Expression.Parameter(<span style=color:#66d9ef>typeof</span>(TTarget),  node.Name): node);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>protected</span> <span style=color:#66d9ef>override</span> Expression VisitLambda&lt;T&gt;(Expression&lt;T&gt; node)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#ae81ff>_</span>parameters = VisitAndConvert&lt;ParameterExpression&gt;(node.Parameters, <span style=color:#e6db74>&#34;VisitLambda&#34;</span>;
+</span></span><span style=display:flex><span>      <span style=color:#66d9ef>return</span> Expression.Lambda(Visit(node.Body), <span style=color:#ae81ff>_</span>parameters);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>The <code>Convert</code> method accepts an <code>Expression&lt;Func&lt;TSource, bool>></code>. The <code>Func&lt;TSource, bool></code> describes a method that receives an argument of type <code>TSource</code> and returns a <code>bool</code>. The same signature as a query filter. It then returns an <code>Expression&lt;Func&lt;TTarget, bool>></code>.</p><p>This is useful to take our <code>Expression&lt;Func&lt;ISoftDeletable, bool>></code> and convert it to <code>Expression&lt;Func&lt;Post, bool>></code> and <code>Expression&lt;Func&lt;Comment, bool>></code> and so on. Let&rsquo;s write some code to do that.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ModelBuilderExtensions</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> SetQueryFilter&lt;TEntity, TEntityInterface&gt;(
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>this</span> ModelBuilder builder,
+</span></span><span style=display:flex><span>    Expression&lt;Func&lt;TEntityInterface, <span style=color:#66d9ef>bool</span>&gt;&gt; filterExpression)
+</span></span><span style=display:flex><span>      <span style=color:#66d9ef>where</span> TEntityInterface : <span style=color:#66d9ef>class</span>
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>where</span> TEntity : class, TEntityInterface
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> concreteExpression = filterExpression
+</span></span><span style=display:flex><span>      .Convert&lt;TEntityInterface, TEntity&gt;();
+</span></span><span style=display:flex><span>    builder.Entity&lt;TEntity&gt;()
+</span></span><span style=display:flex><span>      .HasQueryFilter(concreteExpression);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e>// More code to follow...</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>So what this method does is take in our interface based expression and convert it to an expression for the entity type. We could in theory call it like this.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span>builder.SetQueryFilter&lt;Post, ISoftDeletable&gt;(p =&gt; p.IsDeleted);
+</span></span></code></pre></div><p>But we have one problem, here&rsquo;s the code to retrieve every entity type.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>foreach</span> (<span style=color:#66d9ef>var</span> type <span style=color:#66d9ef>in</span> builder.Model.GetEntityTypes()
+</span></span><span style=display:flex><span>  .Select(t =&gt; t.ClrType)
+</span></span><span style=display:flex><span>  .Where(t =&gt; <span style=color:#66d9ef>typeof</span>(TEntityInterface).IsAssignableFrom(t)))
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// What do we do? This method requires a type known at compile time.</span>
+</span></span><span style=display:flex><span>    builder.SetQueryFilter&lt;type, ISoftDeletable&gt;(p =&gt; p.IsDeleted)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Do you see the problem?</p><p>Yes, this won&rsquo;t compile because <code>SetQueryFilter</code> is a generic method. It expects a known type at compile time. We can&rsquo;t pass in <code>type</code> as part of the generic signature.</p><p>Reflection to the rescue!</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>static</span> <span style=color:#66d9ef>readonly</span> MethodInfo SetQueryFilterMethod = <span style=color:#66d9ef>typeof</span>(ModelBuilderExtensions)
+</span></span><span style=display:flex><span>  .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+</span></span><span style=display:flex><span>  .Single(t =&gt; t.IsGenericMethod &amp;&amp; t.Name == nameof(SetQueryFilter));
+</span></span></code></pre></div><p>We set up a <code>MethodInfo</code> instance so we can invoke <code>SetQueryFilter</code> dynamically. Here&rsquo;s a helper method to do that.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> SetEntityQueryFilter&lt;TEntityInterface&gt;(
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>this</span> ModelBuilder builder,
+</span></span><span style=display:flex><span>  Type entityType,
+</span></span><span style=display:flex><span>  Expression&lt;Func&lt;TEntityInterface, <span style=color:#66d9ef>bool</span>&gt;&gt; filterExpression)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    SetQueryFilterMethod
+</span></span><span style=display:flex><span>      .MakeGenericMethod(entityType, <span style=color:#66d9ef>typeof</span>(TEntityInterface))
+</span></span><span style=display:flex><span>      .Invoke(<span style=color:#66d9ef>null</span>, <span style=color:#66d9ef>new</span> <span style=color:#66d9ef>object</span>[] { builder, filterExpression });
+</span></span><span style=display:flex><span>  }
+</span></span></code></pre></div><p>This method now lets us pass in an entity type at runtime. So we can do this:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>var</span> type = <span style=color:#66d9ef>typeof</span>(Post);
+</span></span><span style=display:flex><span>builder.SetEntityQueryFilter&lt;ISoftDeletable&gt;(type, p =&gt; p.IsDeleted);
+</span></span></code></pre></div><p>Now we just need one more method to apply this filter on every entity type that implements our interface.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> SetQueryFilterOnAllEntities&lt;TEntityInterface&gt;(
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>this</span> ModelBuilder builder,
+</span></span><span style=display:flex><span>  Expression&lt;Func&lt;TEntityInterface, <span style=color:#66d9ef>bool</span>&gt;&gt; filterExpression)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>foreach</span> (<span style=color:#66d9ef>var</span> type <span style=color:#66d9ef>in</span> builder.Model.GetEntityTypes()
+</span></span><span style=display:flex><span>    .Where(t =&gt; t.BaseType == <span style=color:#66d9ef>null</span>)
+</span></span><span style=display:flex><span>    .Select(t =&gt; t.ClrType)
+</span></span><span style=display:flex><span>    .Where(t =&gt; <span style=color:#66d9ef>typeof</span>(TEntityInterface).IsAssignableFrom(t)))
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    builder.SetEntityQueryFilter&lt;TEntityInterface&gt;(
+</span></span><span style=display:flex><span>      type,
+</span></span><span style=display:flex><span>      filterExpression);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Note the <code>.Where(t => t.BaseType == null)</code> clause here. Query filters may only be applied to the root entity type of an inheritance hierarchy. This clause ensures we don&rsquo;t try to apply a filter on a non-root type.</p><p>And going back to our <code>DbContext</code> derived class, we can invoke this method like so:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#66d9ef>protected</span> <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>void</span> OnModelCreating(ModelBuilder builder)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  modelBuilder.SetQueryFilterOnAllEntities&lt;ISoftDeletable&gt;(p =&gt; !p.IsDeleted);
+</span></span><span style=display:flex><span>  <span style=color:#75715e>//... Probably more code</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>```</span>csharp
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> AppendQueryFilter&lt;T&gt;(
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>this</span> EntityTypeBuilder&lt;T&gt; entityTypeBuilder, Expression&lt;Func&lt;T, <span style=color:#66d9ef>bool</span>&gt;&gt; expression)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>where</span> T : <span style=color:#66d9ef>class</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> parameterType = Expression.Parameter(entityTypeBuilder.Metadata.ClrType);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> expressionFilter = ReplacingExpressionVisitor.Replace(
+</span></span><span style=display:flex><span>        expression.Parameters.Single(), parameterType, expression.Body);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (entityTypeBuilder.Metadata.GetQueryFilter() != <span style=color:#66d9ef>null</span>)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>var</span> currentQueryFilter = entityTypeBuilder.Metadata.GetQueryFilter();
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>var</span> currentExpressionFilter = ReplacingExpressionVisitor.Replace(
+</span></span><span style=display:flex><span>            currentQueryFilter.Parameters.Single(), parameterType, currentQueryFilter.Body);
+</span></span><span style=display:flex><span>        expressionFilter = Expression.AndAlso(currentExpressionFilter, expressionFilter);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> lambdaExpression = Expression.Lambda(expressionFilter, parameterType);
+</span></span><span style=display:flex><span>    entityTypeBuilder.HasQueryFilter(lambdaExpression);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></div></div><div class=pagination><div class=pagination__title><span class=pagination__title-h>Read other posts</span><hr></div><div class=pagination__buttons><span class="button previous"><a href=https://shayananique.com/posts/2021-04-14-https-for-azure-functions/><span class=button__icon>←</span>
+<span class=button__text>HTTPS with LetsEncrypt for Azure Functions</span></a></span>
+<span class="button next"><a href=https://shayananique.com/posts/2012-09-09-lets-start-windows-8-development/><span class=button__text>Lets start Windows 8 Development</span>
+<span class=button__icon>→</span></a></span></div></div></div></div><footer class=footer><div class=footer__inner><div class=copyright><span>© 2022 Powered by <a href=http://gohugo.io>Hugo</a></span>
+<span>:: Theme made by <a href=https://twitter.com/panr>panr</a></span></div></div></footer><script src=https://shayananique.com/assets/main.js></script>
+<script src=https://shayananique.com/assets/prism.js></script></div></body></html>
